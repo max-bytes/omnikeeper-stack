@@ -1,0 +1,100 @@
+version: "3"
+services:
+  frontend:
+    image: ${frontend_image}:${frontend_tag}
+    ports:
+      - ${http_port}:80
+    volumes:
+      - ./logs/frontend/nginx:/var/log/nginx
+    environment:
+      NODE_ENV: production
+      PUBLIC_URL_DYNAMIC: ${url_omnikeeper}:${http_port}
+      REACT_APP_BASE_NAME: /
+      REACT_APP_KEYCLOAK_URL: ${keycloak_url}/auth/
+      REACT_APP_KEYCLOAK_REALM: ${keycloak_realm}
+      REACT_APP_KEYCLOAK_RESOURCE: ${keycloak_realm}
+      REACT_APP_KEYCLOAK_CLIENT_ID: landscape-omnikeeper
+      REACT_APP_BACKEND_URL: ${url_omnikeeper}:${http_port_backend}
+    depends_on:
+      - backend
+
+  backend:
+    image: ${backend_image}:${backend_tag}
+    ports:
+      - ${http_port_backend}:80
+    volumes:
+      - ./logs/backend:/app/Logs
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${aspnetcore_environment}
+      - ASPNETCORE_URLS=http://+:80
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - ConnectionStrings__LandscapeDatabaseConnection=Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true
+      - ConnectionStrings__HangfireConnection=Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true
+      - Authentication__Audience=${authentication_audience}
+      - Authentication__Authority=${authentication_authority}
+      - Keycloak__URL=${keycloak_url}
+      - Keycloak__Realm=${keycloak_realm}
+      - Keycloak__ClientID=${keycloak_clientid}
+      - Keycloak__ClientSecret=${keycloak_clientsecret}
+
+    depends_on:
+      - db
+
+  keycloak:
+    image: jboss/keycloak:13.0.0
+    volumes:
+      - ./data/keycloak/keycloak-db:/opt/jboss/keycloak/standalone/data
+      - ./contrib/tls.crt:/etc/x509/https/tls.crt:ro
+      - ./contrib/tls.key:/etc/x509/https/tls.key:ro
+    environment:
+      - DB_VENDOR=H2
+    ports:
+      - ${keycloak_port}:8443
+
+  db:
+    image: postgres:12
+    volumes:
+      - ./data/db/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${db_database}
+      POSTGRES_USER: ${db_user}
+      POSTGRES_PASSWORD: ${db_password}
+      shm_size: 256mb
+    ports:
+      - ${db_management_port}:5432
+    networks:
+      default:
+        aliases:
+          - db
+
+  db_backup:
+    image: prodrigestivill/postgres-backup-local
+    restart: unless-stopped
+
+    volumes:
+      - ./data/db_backup:/backups
+
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=${db_database}
+      - POSTGRES_USER=${db_user}
+      - POSTGRES_PASSWORD=${db_password}
+      - POSTGRES_EXTRA_OPTS=-Z9 --blobs
+      - SCHEDULE=@daily
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+      - HEALTHCHECK_PORT=80
+
+  dbadmin:
+    image: dpage/pgadmin4:4.20
+    ports:
+      - ${http_port_dbadmin}:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${pgadmin_email}
+      - PGADMIN_DEFAULT_PASSWORD=${pgadmin_password}
+    depends_on:
+      - db
+
