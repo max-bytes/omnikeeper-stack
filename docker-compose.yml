@@ -36,20 +36,22 @@ services:
       - Keycloak__Realm=${keycloak_realm}
       - Keycloak__ClientID=${keycloak_clientid}
       - Keycloak__ClientSecret=${keycloak_clientsecret}
+      - CORS__AllowedHosts=${url_omnikeeper}:${http_port}
+      - BaseURL=
 
     depends_on:
       - db
 
-  keycloak:
-    image: jboss/keycloak:13.0.0
-    volumes:
-      - ./data/keycloak/keycloak-db:/opt/jboss/keycloak/standalone/data
-      - ./contrib/tls.crt:/etc/x509/https/tls.crt:ro
-      - ./contrib/tls.key:/etc/x509/https/tls.key:ro
-    environment:
-      - DB_VENDOR=H2
-    ports:
-      - ${keycloak_port}:8443
+  # keycloak:
+  #   image: jboss/keycloak:13.0.0
+  #   volumes:
+  #     - ./data/keycloak/keycloak-db:/opt/jboss/keycloak/standalone/data
+  #     - ./contrib/tls.crt:/etc/x509/https/tls.crt:ro
+  #     - ./contrib/tls.key:/etc/x509/https/tls.key:ro
+  #   environment:
+  #     - DB_VENDOR=H2
+  #   ports:
+  #     - ${keycloak_port}:8443
 
   db:
     image: postgres:12
@@ -67,26 +69,26 @@ services:
         aliases:
           - db
 
-  db_backup:
-    image: prodrigestivill/postgres-backup-local
-    restart: unless-stopped
+  # db_backup:
+  #   image: prodrigestivill/postgres-backup-local
+  #   restart: unless-stopped
 
-    volumes:
-      - ./data/db_backup:/backups
+  #   volumes:
+  #     - ./data/db_backup:/backups
 
-    depends_on:
-      - db
-    environment:
-      - POSTGRES_HOST=db
-      - POSTGRES_DB=${db_database}
-      - POSTGRES_USER=${db_user}
-      - POSTGRES_PASSWORD=${db_password}
-      - POSTGRES_EXTRA_OPTS=-Z9 --blobs
-      - SCHEDULE=@daily
-      - BACKUP_KEEP_DAYS=7
-      - BACKUP_KEEP_WEEKS=4
-      - BACKUP_KEEP_MONTHS=6
-      - HEALTHCHECK_PORT=80
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     - POSTGRES_HOST=db
+  #     - POSTGRES_DB=${db_database}
+  #     - POSTGRES_USER=${db_user}
+  #     - POSTGRES_PASSWORD=${db_password}
+  #     - POSTGRES_EXTRA_OPTS=-Z9 --blobs
+  #     - SCHEDULE=@daily
+  #     - BACKUP_KEEP_DAYS=7
+  #     - BACKUP_KEEP_WEEKS=4
+  #     - BACKUP_KEEP_MONTHS=6
+  #     - HEALTHCHECK_PORT=80
 
   dbadmin:
     image: dpage/pgadmin4:4.20
