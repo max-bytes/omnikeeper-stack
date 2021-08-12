@@ -3,16 +3,13 @@ services:
   frontend:
     image: ${frontend_image}:${frontend_tag}
     ports:
-      - ${http_port}:80
+      - ${http_port_frontend}:80
     volumes:
       - ./logs/frontend/nginx:/var/log/nginx
     environment:
-      NODE_ENV: production
-      PUBLIC_URL_DYNAMIC: ${url_omnikeeper}:${http_port}
-      REACT_APP_BASE_NAME: /
-      REACT_APP_KEYCLOAK_URL: ${keycloak_url}/auth/
+      PUBLIC_URL_DYNAMIC: ${url_omnikeeper}:${http_port_frontend}
+      REACT_APP_KEYCLOAK_URL: ${keycloak_url}
       REACT_APP_KEYCLOAK_REALM: ${keycloak_realm}
-      REACT_APP_KEYCLOAK_RESOURCE: ${keycloak_realm}
       REACT_APP_KEYCLOAK_CLIENT_ID: landscape-omnikeeper
       REACT_APP_BACKEND_URL: ${url_omnikeeper}:${http_port_backend}
     depends_on:
@@ -25,19 +22,11 @@ services:
     volumes:
       - ./logs/backend:/app/Logs
     environment:
-      - ASPNETCORE_ENVIRONMENT=${aspnetcore_environment}
-      - ASPNETCORE_URLS=http://+:80
-      - DOTNET_RUNNING_IN_CONTAINER=true
       - ConnectionStrings__LandscapeDatabaseConnection=Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true
       - ConnectionStrings__HangfireConnection=Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true
-      - Authentication__Audience=${authentication_audience}
-      - Authentication__Authority=${authentication_authority}
-      - Keycloak__URL=${keycloak_url}
-      - Keycloak__Realm=${keycloak_realm}
-      - Keycloak__ClientID=${keycloak_clientid}
-      - Keycloak__ClientSecret=${keycloak_clientsecret}
-      - CORS__AllowedHosts=${url_omnikeeper}:${http_port}
-      - BaseURL=
+      - Authentication__Audience=${keycloak_client}
+      - Authentication__Authority=${keycloak_url}/auth/realms/${keycloak_realm}
+      - CORS__AllowedHosts=${url_omnikeeper}:${http_port_frontend}
 
     depends_on:
       - db
