@@ -23,7 +23,7 @@ services:
     volumes:
       - ./logs/backend:/app/Logs
     environment:
-      ConnectionStrings__LandscapeDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true
+      ConnectionStrings__OmnikeeperDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true
       Authentication__Audience: ${keycloak_client}
       Authentication__Authority: ${keycloak_url}/auth/realms/${keycloak_realm}
       CORS__AllowedHosts: ${url_omnikeeper}:${http_port_frontend}
