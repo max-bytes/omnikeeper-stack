@@ -67,6 +67,7 @@ or manually:
 
 ## Initial omnikeeper Config
 omnikeeper starts empty, without a single layer. That means it also has nowhere to write (parts of) its own config. Most features of omnikeeper do not work properly until that is set up. To initially setup a layer and configure it as the layer where omnikeeper should store its own config, follow these steps:
+- visit http://localhost:9080/manage to reach the omnikeeper technical frontend
 - create a new layer
     - suggested settings:
         - name: __okconfig
