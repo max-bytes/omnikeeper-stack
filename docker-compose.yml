@@ -23,7 +23,7 @@ services:
     volumes:
       - ./logs/backend:/app/Logs
     environment:
-      ConnectionStrings__OmnikeeperDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true
+      ConnectionStrings__OmnikeeperDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true;Keepalive=300;Timeout=300;CommandTimeout=300
       Authentication__Audience: ${keycloak_client}
       Authentication__Authority: http://keycloak:8080/auth/realms/${keycloak_realm}
       Authentication__ValidateIssuer: "false" # must be false because in this setup, frontend and backend "speak" with keycloak through different URLs
