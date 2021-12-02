@@ -2,24 +2,25 @@ version: "3"
 services:
   frontend:
     image: ${frontend_image}:${frontend_tag}
-    ports:
-      - ${http_port_frontend}:80
     volumes:
       - ./logs/frontend/nginx:/var/log/nginx
     environment:
-      PUBLIC_URL_DYNAMIC: ${url_omnikeeper}:${http_port_frontend}
+      PUBLIC_URL_DYNAMIC: ${url_omnikeeper}:${http_port}
       REACT_APP_KEYCLOAK_URL: ${keycloak_url}
       REACT_APP_KEYCLOAK_REALM: ${keycloak_realm}
       REACT_APP_KEYCLOAK_CLIENT_ID: ${keycloak_client}
-      REACT_APP_BACKEND_URL: ${url_omnikeeper}:${http_port_backend}/backend
-      REACT_APP_BASE_NAME: /frontend
+      REACT_APP_BACKEND_URL: ${url_omnikeeper}:${http_port}/backend
+      REACT_APP_BASE_NAME: /
     depends_on:
       - backend
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.frontend.entrypoints: web
+      traefik.http.routers.frontend.rule: "PathPrefix(`/`)"
+      traefik.http.services.frontend.loadbalancer.server.port: "80"
 
   backend:
     image: ${backend_image}:${backend_tag}
-    ports:
-      - ${http_port_backend}:80
     volumes:
       - ./logs/backend:/app/Logs
     environment:
@@ -27,12 +28,37 @@ services:
       Authentication__Audience: ${keycloak_client}
       Authentication__Authority: http://keycloak:8080/auth/realms/${keycloak_realm}
       Authentication__ValidateIssuer: "false" # must be false because in this setup, frontend and backend "speak" with keycloak through different URLs
-      CORS__AllowedHosts: ${url_omnikeeper}:${http_port_frontend}
+      CORS__AllowedHosts: ${url_omnikeeper}
       BaseURL: /backend
       ShowPII: "true" # to improve error messages; should not be set in production
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.backend.entrypoints: web
+      traefik.http.routers.backend.rule: "PathPrefix(`/backend`)"
+      traefik.http.services.backend.loadbalancer.server.port: "80"
 
     depends_on:
       - db
+
+  traefik:
+    image: traefik:v2.5
+    command:
+      - --log.level=INFO
+      - --global.sendAnonymousUsage=false
+      - --accessLog
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.swarmMode=false
+      - --providers.file.directory=/conf
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entryPoints.web.forwardedHeaders.trustedIPs=127.0.0.1/32,212.31.95.60,212.31.95.61,212.31.95.62
+    ports:
+      - ${http_port}:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./conf/traefik/conf:/conf/
+      - ./data/traefik/data:/data/
 
   keycloak:
     image: jboss/keycloak:13.0.0
