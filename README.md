@@ -64,22 +64,6 @@ or manually:
     - set credentials (password 123123, not temporary)
     - add client role "omnikeeper" -> "__ok_superuser"
 
-
-## Initial omnikeeper Config
-omnikeeper starts empty, without a single layer. That means it also has nowhere to write (parts of) its own config. Most features of omnikeeper do not work properly until that is set up. To initially setup a layer and configure it as the layer where omnikeeper should store its own config, follow these steps:
-- visit http://localhost:9080/manage to reach the omnikeeper technical frontend
-- create a new layer
-    - suggested settings:
-        - name: __okconfig
-        - description: Internal omnikeeper config
-        - color: white
-        - compute layer brain: none/empty
-        - online inbound adapter: none/empty
-        - state: ACTIVE
-- update base configuration:
-    - Config Layerset: __okconfig
-    - Config Write Layer: __okconfig
-
 # Start exploring
 Visit http://localhost:9080 to reach the omnikeeper technical frontend.
 
@@ -88,3 +72,10 @@ Refer to https://github.com/max-bytes/omnikeeper/wiki for further introduction/d
 # Modify Setup
 
 Refer to the `.env` file for a starting point into modifying setup parameters, such as ports and used images.
+
+# High-Availability Setup
+
+## Running
+```bash
+docker-compose -f docker-compose-ha.yml up -d
+```
