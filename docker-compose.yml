@@ -27,7 +27,7 @@ services:
       - ./logs/backend:/app/Logs
     environment:
       ConnectionStrings__OmnikeeperDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true;Keepalive=1024;Timeout=1024;CommandTimeout=1024
-      ConnectionStrings__HangfireDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true;Keepalive=1024;Timeout=1024;CommandTimeout=1024
+      ConnectionStrings__QuartzDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true;Keepalive=1024;Timeout=1024;CommandTimeout=1024
       Authentication__Audience: ${keycloak_client}
       Authentication__Authority: http://keycloak:8080/auth/realms/${keycloak_realm}
       Authentication__ValidateIssuer: "false" # must be false because in this setup, frontend and backend "speak" with keycloak through different URLs
