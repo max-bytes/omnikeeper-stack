@@ -30,14 +30,6 @@ docker-compose up -d
 
 ## Configure Keycloak
 
-### Add admin user
-
-After keycloak container has started:
-```bash
-docker exec -ti omnikeeper-stack_keycloak_1 /opt/jboss/keycloak/bin/add-user-keycloak.sh -r master -u admin -p 123123
-docker-compose restart keycloak
-```
-
 ### Configure realm
 
 Either automatically:
