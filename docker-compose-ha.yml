@@ -28,10 +28,12 @@ services:
       ConnectionStrings__QuartzDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true;Keepalive=1024;Timeout=1024;CommandTimeout=1024
       Authentication__Audience: ${keycloak_client}
       Authentication__Authority: http://keycloak:8080/realms/${keycloak_realm}
+      Authentication__AuthorityForFrontend: ${keycloak_url}/realms/${keycloak_realm} # must be set because in this setup, frontend and backend "speak" with keycloak through different URLs
       Authentication__ValidateIssuer: "false" # must be false because in this setup, frontend and backend "speak" with keycloak through different URLs
       CORS__AllowedHosts: ${url_omnikeeper}
       BaseURL: /backend
       ShowPII: "true" # to improve error messages; should not be set in production
+      DistributedQuartzInstanceID: "instance-A"
     labels:
       traefik.enable: "true"
       traefik.http.routers.backend.entrypoints: web
@@ -46,12 +48,16 @@ services:
       - ./logs/backend_b:/app/Logs
     environment:
       ConnectionStrings__OmnikeeperDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true;Keepalive=1024;Timeout=1024;CommandTimeout=1024
+      ConnectionStrings__QuartzDatabaseConnection: Server=db;User Id=${db_user};Password=${db_password};Database=${db_database};Pooling=true;Keepalive=1024;Timeout=1024;CommandTimeout=1024
       Authentication__Audience: ${keycloak_client}
-      Authentication__Authority: http://keycloak:8080/auth/realms/${keycloak_realm}
+      Authentication__Authority: http://keycloak:8080/realms/${keycloak_realm}
+      Authentication__AuthorityForFrontend: ${keycloak_url}/realms/${keycloak_realm} # must be set because in this setup, frontend and backend "speak" with keycloak through different URLs
       Authentication__ValidateIssuer: "false" # must be false because in this setup, frontend and backend "speak" with keycloak through different URLs
       CORS__AllowedHosts: ${url_omnikeeper}
       BaseURL: /backend
       ShowPII: "true" # to improve error messages; should not be set in production
+      DistributedQuartzInstanceID: "instance-B"
+      RunComputelayers: "false"
     labels:
       traefik.enable: "true"
       traefik.http.routers.backend.entrypoints: web
