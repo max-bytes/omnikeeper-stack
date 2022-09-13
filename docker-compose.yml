@@ -65,11 +65,11 @@ services:
       - ./data/traefik/data:/data/
 
   keycloak:
-    image: quay.io/keycloak/keycloak:18.0.0
+    image: quay.io/keycloak/keycloak:19.0.1
     volumes:
       - keycloak-data-volume:/opt/keycloak/data/h2/
     environment:
-      - DB_VENDOR=H2
+      - KC_DB=dev-file
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=123123
     ports:
