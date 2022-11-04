@@ -26,6 +26,10 @@ to create a new database (or fully reset the database and start fresh).
 ## Start Docker containers
 ```bash
 docker-compose up -d
+
+# NOTE: Keycloak behaves weird regarding mapped volume permissions, fixed by changing permissions of mapped folder and restarting keycloak
+sudo chmod -R 777 data/keycloak/data/
+docker-compose restart keycloak
 ```
 
 ## Configure Keycloak
