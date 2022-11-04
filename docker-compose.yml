@@ -65,9 +65,9 @@ services:
       - ./data/traefik/data:/data/
 
   keycloak:
-    image: quay.io/keycloak/keycloak:19.0.1
+    image: quay.io/keycloak/keycloak:19.0.3
     volumes:
-      - keycloak-data-volume:/opt/keycloak/data/h2/
+      - ./data/keycloak/data:/opt/keycloak/data/h2/
     environment:
       - KC_DB=dev-file
       - KEYCLOAK_ADMIN=admin
@@ -106,5 +106,3 @@ services:
     depends_on:
       - db
 
-volumes:
-  keycloak-data-volume:
